@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # medicineremainderapp
 
 A new Flutter project.
@@ -15,3 +16,6 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+# medicine-reminder-app
+>>>>>>> 17bf075dd84ddabd4af6967c2f2c29b81f0e0934
