@@ -58,7 +58,7 @@ This is a cross-platform application and supports:
 
 1. Tsion Asrat – ID: RMD2465 – Project Manager  
 2. Sumeya Ahmed – ID: DDU1600683 – Product Manager  
-3. Abenezer Samson – ID: DDU160048 – Developer  
+3. Abenezer Samson – ID: DDU1600048 – Developer  
 4. Enas Remedan – ID: DDU1600227 – UX/UI Designer  
 5. Eyerusalem Berihun – ID: RMD921 – Quality Assurance  
 
