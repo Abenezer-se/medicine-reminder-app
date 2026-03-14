@@ -41,9 +41,7 @@ This is a cross-platform application and supports:
 - Android
 - iOS
 - Web
-- Windows
-- macOS
-- Linux
+
 
 ## 🛠 Installation & Setup
 
