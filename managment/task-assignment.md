@@ -12,7 +12,7 @@ Write requirements
 UI/UX Designer
 Design app screens in Figma
 
-Developer
+Developers
 Build the Flutter application
 
 QA

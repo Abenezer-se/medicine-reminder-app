@@ -14,5 +14,5 @@ Team Members:
 Project Manager
 Product Manager
 UI/UX Designer
-Developer
+Developers
 Quality Assurance
