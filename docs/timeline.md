@@ -23,7 +23,6 @@
 
 - Developers implement main features:
 
-  * User Registration and Login
   * Add Medicine
   * Set Reminder Time
   * Notification Reminder
