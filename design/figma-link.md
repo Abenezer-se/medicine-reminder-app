@@ -4,7 +4,7 @@ This document contains the Figma design link for the Medicine Reminder mobile ap
  
 ## Figma Project Link
 
- https://www.figma.com/proto/lAsVA4cfFUKjiHPRoWfgfU/Untitled?node-id=7-2098&t=2ilHpmwyWZ5K53qB-1
+  https://www.figma.com/proto/lAsVA4cfFUKjiHPRoWfgfU/Untitled?node-id=119-10&t=jKBoQgYjM8WN3ItP-1
  
 ## Description
 
