@@ -1,4 +1,6 @@
+// lib/screen/onboarding_screen.dart
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/onboarding_page.dart';
 import 'home_screen.dart';
 
@@ -17,33 +19,49 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     OnboardingPage(
       title: "Never Miss a Dose",
       description:
-          "Set reminders for medications and stay on track with your health routine",
+          "Set reminders for all your medications and stay on track with your health routine",
       icon: Icons.medication,
+      circleColor: Color(0xFF00E5B0),
     ),
     OnboardingPage(
       title: "Track Your Health",
       description:
-          "Monitor blood pressure, calculate BMI, and keep your records",
+          "Monitor blood pressure, calculate BMI, and keep a comprehensive record of your heart metrics.",
       icon: Icons.favorite,
+      circleColor: Color(0xFF3498DB),
     ),
     OnboardingPage(
       title: "Symptom Checker",
-      description: "Assess symptoms and get guidance instantly",
+      description:
+          "Quickly assess your symptoms and get guidance on potential conditions and next steps.",
       icon: Icons.health_and_safety,
+      circleColor: Color(0xFF2ECC71),
     ),
     OnboardingPage(
       title: "Find Pharmacies",
-      description: "Locate nearby pharmacies بسهولة",
+      description:
+          "Locate nearby pharmacies and get direction when you need to refill your prescription",
       icon: Icons.location_on,
+      circleColor: Color(0xFFF1C40F),
     ),
   ];
 
+  // Save that onboarding has been seen and go to Home
+  Future<void> _completeOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_seen_onboarding', true);
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+    );
+  }
+
   void next() {
     if (index == pages.length - 1) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
+      _completeOnboarding();
     } else {
       controller.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -52,11 +70,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void skip() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
+  void previous() {
+    controller.previousPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
+  }
+
+  void skip() {
+    _completeOnboarding();
   }
 
   @override
@@ -65,13 +87,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // 🔹 Skip button
+            // Skip button
             Align(
               alignment: Alignment.topRight,
-              child: TextButton(onPressed: skip, child: const Text("Skip")),
+              child: TextButton(
+                onPressed: skip,
+                child: const Text(
+                  "Skip",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+              ),
             ),
 
-            // 🔹 Pages
+            // Pages
             Expanded(
               child: PageView(
                 controller: controller,
@@ -80,7 +108,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
 
-            // 🔹 Dots indicator
+            // Dots indicator
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
@@ -90,7 +118,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   width: index == i ? 12 : 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: index == i ? Colors.green : Colors.grey,
+                    color: index == i
+                        ? const Color.fromARGB(255, 140, 243, 234)
+                        : Colors.grey,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -99,17 +129,93 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
             const SizedBox(height: 20),
 
-            // 🔹 Button
+            // Buttons
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ElevatedButton(
-                onPressed: next,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                child: Text(index == pages.length - 1 ? "Get Started" : "Next"),
-              ),
+              child: index == 0
+                  ? ElevatedButton(
+                      onPressed: next,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color.fromARGB(255, 140, 243, 234),
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Next",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                          SizedBox(width: 8),
+                          Icon(Icons.arrow_forward, size: 20),
+                        ],
+                      ),
+                    )
+                  : Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: previous,
+                            style: OutlinedButton.styleFrom(
+                              minimumSize: const Size(double.infinity, 50),
+                              side: const BorderSide(
+                                color: Color.fromARGB(255, 140, 243, 234),
+                                width: 2,
+                              ),
+                              foregroundColor:
+                                  const Color.fromARGB(255, 140, 243, 234),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              '< Back',
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: next,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 140, 243, 234),
+                              minimumSize: const Size(double.infinity, 50),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: index == pages.length - 1
+                                ? const Text(
+                                    "Get Started",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600),
+                                  )
+                                : const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Next",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Icon(Icons.arrow_forward, size: 20),
+                                    ],
+                                  ),
+                          ),
+                        ),
+                      ],
+                    ),
             ),
 
             const SizedBox(height: 20),
