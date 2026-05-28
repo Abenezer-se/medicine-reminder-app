@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> bd5ae6ec8af0070ace0b0756e38073696507fc02
 // lib/providers/settings_provider.dart
 import 'package:flutter/material.dart';
 import 'package:hive_ce/hive.dart';

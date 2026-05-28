@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> bd5ae6ec8af0070ace0b0756e38073696507fc02
 // lib/widgets/add_medicine_sheet.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

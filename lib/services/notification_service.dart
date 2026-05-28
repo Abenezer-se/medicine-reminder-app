@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 // lib/services/notification_service.dart
+=======
+
+// lib/services/notification_service.dart
+
+>>>>>>> bd5ae6ec8af0070ace0b0756e38073696507fc02
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
