@@ -1,4 +1,5 @@
 // lib/screen/onboarding_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/onboarding_page.dart';
@@ -224,4 +225,5 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
   }
-}
+} 
+

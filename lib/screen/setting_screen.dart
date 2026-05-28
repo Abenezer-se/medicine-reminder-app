@@ -1,277 +1,429 @@
-// lib/screen/settings_screen.dart
+
+
+
+// lib/screen/setting_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/user_provider.dart';
+import '../providers/setting_provider.dart';
+import '../services/alarm_service.dart';
 import '../widgets/notification_button.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
-  @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
-}
-
-class _SettingsScreenState extends State<SettingsScreen> {
-  bool soundNotifications = true;
-  String reminderLeadTime = "15 minutes";
-
-  final List<String> leadTimeOptions = [
-    "5 minutes",
-    "10 minutes",
-    "15 minutes",
-    "30 minutes",
-    "1 hour",
-  ];
-
-  void _showCreateAccountDialog() {
-    final fullNameController = TextEditingController();
-    final usernameController = TextEditingController();
-    final emailController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text("Create Account",
-                    style:
-                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                const Text("Please fill your information",
-                    style: TextStyle(color: Colors.grey)),
-                const SizedBox(height: 24),
-                TextField(
-                  controller: fullNameController,
-                  decoration: InputDecoration(
-                    labelText: "Full Name",
-                    prefixIcon: const Icon(Icons.person),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: usernameController,
-                  decoration: InputDecoration(
-                    labelText: "Username",
-                    prefixIcon: const Icon(Icons.account_circle),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: "Email Address",
-                    prefixIcon: const Icon(Icons.email),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                        ),
-                        child: const Text("Cancel"),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          final userProvider =
-                              Provider.of<UserProvider>(context, listen: false);
-                          userProvider.updateUser(
-                            name: fullNameController.text,
-                            email: emailController.text,
-                          );
-
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Account created successfully!"),
-                              backgroundColor: Color(0xFF2EC4B6),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2EC4B6),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                        ),
-                        child: const Text("Create Account",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  static const Color primary = Color(0xFF2EC4B6);
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final userProvider = Provider.of<UserProvider>(context);
+    final theme = Provider.of<ThemeProvider>(context);
+    final user = Provider.of<UserProvider>(context);
+    final settings = Provider.of<SettingsProvider>(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+    final textColor = isDark ? Colors.white : const Color(0xFF1A2E35);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Settings"),
-        backgroundColor: const Color(0xFF2EC4B6),
-        foregroundColor: Colors.white,
+        title: const Text('Settings',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         actions: const [NotificationButton()],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Profile",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            Card(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
-              child: ListTile(
-                leading: CircleAvatar(
-                  radius: 32,
-                  backgroundColor: const Color(0xFF2EC4B6),
-                  child: Text(
-                    userProvider.userName.isNotEmpty
-                        ? userProvider.userName[0].toUpperCase()
-                        : "U",
-                    style: const TextStyle(
-                        fontSize: 28,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-                title: Text(
-                  userProvider.userName.isNotEmpty
-                      ? userProvider.userName
-                      : "Create your profile",
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(userProvider.userEmail.isNotEmpty
-                    ? userProvider.userEmail
-                    : "Tap to create your account"),
-                trailing: const Icon(Icons.edit),
-                onTap: _showCreateAccountDialog,
+            // ── Profile Banner ──
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
+              decoration: const BoxDecoration(
+                color: primary,
+                borderRadius:
+                    BorderRadius.vertical(bottom: Radius.circular(28)),
               ),
-            ),
-            const SizedBox(height: 24),
-            const Text("Appearance",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            Card(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
-              child: SwitchListTile(
-                title: const Text("Dark Mode"),
-                subtitle: const Text("Switch between light and dark themes"),
-                value: themeProvider.isDark,
-                onChanged: themeProvider.toggleTheme,
-                secondary: const Icon(Icons.dark_mode),
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Text("Notifications",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            Card(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
               child: Column(
                 children: [
-                  SwitchListTile(
-                    title: const Text("Sound Notifications"),
-                    subtitle: const Text("Play a sound for reminders"),
-                    value: soundNotifications,
-                    onChanged: (value) =>
-                        setState(() => soundNotifications = value),
-                    secondary: const Icon(Icons.volume_up),
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.white.withOpacity(0.2),
+                    child: Text(
+                      user.userName.isNotEmpty
+                          ? user.userName[0].toUpperCase()
+                          : '?',
+                      style: const TextStyle(
+                          fontSize: 36,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.access_time),
-                    title: const Text("Reminder Lead Time"),
-                    subtitle: const Text("How early to remind before dose"),
-                    trailing: DropdownButton<String>(
-                      value: reminderLeadTime,
-                      underline: const SizedBox(),
-                      items: leadTimeOptions
-                          .map(
-                              (e) => DropdownMenuItem(value: e, child: Text(e)))
-                          .toList(),
-                      onChanged: (value) {
-                        if (value != null)
-                          setState(() => reminderLeadTime = value);
-                      },
+                  const SizedBox(height: 10),
+                  Text(
+                    user.userName.isNotEmpty ? user.userName : 'Your Name',
+                    style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                  Text(
+                    user.userEmail.isNotEmpty
+                        ? user.userEmail
+                        : 'Tap Edit to set up profile',
+                    style: const TextStyle(color: Colors.white70, fontSize: 13),
+                  ),
+                  const SizedBox(height: 14),
+                  OutlinedButton.icon(
+                    onPressed: () => _showEditProfile(context, user),
+                    icon: const Icon(Icons.edit_rounded,
+                        color: Colors.white, size: 16),
+                    label: const Text('Edit Profile',
+                        style: TextStyle(color: Colors.white)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.white),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30)),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-            const Text("About",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            Card(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
-              child: const Padding(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("MediCare — Smart Health Assistant",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16)),
-                    SizedBox(height: 8),
-                    Text("Version 1.0.0"),
-                    SizedBox(height: 12),
-                    Text(
-                      "This application is designed to help you manage your medications and track your health. It is not intended to replace professional medical advice.",
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
+
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── Appearance ──
+                  _sectionTitle('Appearance', textColor),
+                  _card(cardColor, [
+                    SwitchListTile(
+                      title: Text('Dark Mode',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, color: textColor)),
+                      subtitle: const Text('Switch app theme',
+                          style: TextStyle(color: Colors.grey)),
+                      secondary: _iconBox(Icons.dark_mode),
+                      value: theme.isDark,
+                      onChanged: theme.toggleTheme,
+                      activeColor: primary,
                     ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 40),
-            Center(
-              child: TextButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Logout feature coming soon")),
-                  );
-                },
-                icon: const Icon(Icons.logout, color: Colors.red),
-                label: const Text("Logout",
-                    style: TextStyle(color: Colors.red, fontSize: 16)),
+                  ]),
+
+                  const SizedBox(height: 16),
+
+                  // ── Alarm Sound ──
+                  _sectionTitle('Alarm Sound', textColor),
+                  _card(cardColor, [
+                    Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              _iconBox(Icons.music_note),
+                              const SizedBox(width: 12),
+                              Text('Choose Alarm Sound',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: textColor)),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          // 3 sound options
+                          ...AlarmService.sounds.map((sound) {
+                            final isSelected =
+                                settings.selectedSound == sound['asset'];
+                            return GestureDetector(
+                              onTap: () => settings.setSound(sound['asset']!),
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 14, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? primary
+                                      : isDark
+                                          ? const Color(0xFF21262D)
+                                          : Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? primary
+                                        : Colors.transparent,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      isSelected
+                                          ? Icons.radio_button_checked
+                                          : Icons.radio_button_off,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.grey,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      sound['name']!,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          color: isSelected
+                                              ? Colors.white
+                                              : textColor),
+                                    ),
+                                    const Spacer(),
+                                    Icon(Icons.music_note,
+                                        size: 16,
+                                        color: isSelected
+                                            ? Colors.white70
+                                            : Colors.grey),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ]),
+
+                  const SizedBox(height: 16),
+
+                  // ── Notifications ──
+                  _sectionTitle('Notifications', textColor),
+                  _card(cardColor, [
+                    SwitchListTile(
+                      title: Text('Sound',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, color: textColor)),
+                      subtitle: const Text('Play sound for reminders',
+                          style: TextStyle(color: Colors.grey)),
+                      secondary: _iconBox(Icons.volume_up),
+                      value: settings.soundEnabled,
+                      onChanged: settings.setSoundEnabled,
+                      activeColor: primary,
+                    ),
+                    Divider(
+                        height: 1,
+                        indent: 16,
+                        color: isDark ? Colors.white12 : Colors.grey.shade200),
+                    SwitchListTile(
+                      title: Text('Vibration',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, color: textColor)),
+                      subtitle: const Text('Vibrate on alarm',
+                          style: TextStyle(color: Colors.grey)),
+                      secondary: _iconBox(Icons.vibration),
+                      value: settings.vibrateEnabled,
+                      onChanged: settings.setVibrateEnabled,
+                      activeColor: primary,
+                    ),
+                    Divider(
+                        height: 1,
+                        indent: 16,
+                        color: isDark ? Colors.white12 : Colors.grey.shade200),
+                    ListTile(
+                      leading: _iconBox(Icons.timer),
+                      title: Text('Reminder Lead Time',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, color: textColor)),
+                      subtitle: const Text('How early to remind',
+                          style: TextStyle(color: Colors.grey)),
+                      trailing: DropdownButton<String>(
+                        value: settings.reminderLeadTime,
+                        underline: const SizedBox(),
+                        dropdownColor:
+                            isDark ? const Color(0xFF21262D) : Colors.white,
+                        style: TextStyle(color: textColor),
+                        items: [
+                          '5 minutes',
+                          '10 minutes',
+                          '15 minutes',
+                          '30 minutes',
+                          '1 hour'
+                        ]
+                            .map((e) =>
+                                DropdownMenuItem(value: e, child: Text(e)))
+                            .toList(),
+                        onChanged: (v) {
+                          if (v != null) settings.setLeadTime(v);
+                        },
+                      ),
+                    ),
+                  ]),
+
+                  const SizedBox(height: 16),
+
+                  // ── About ──
+                  _sectionTitle('About', textColor),
+                  _card(cardColor, [
+                    ListTile(
+                      leading: const Icon(Icons.info_rounded, color: primary),
+                      title: Text('MediCare',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, color: textColor)),
+                      subtitle: const Text('Version 1.0.0',
+                          style: TextStyle(color: Colors.grey)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: Text(
+                        'This app helps you manage medications and track your health. Not a substitute for professional medical advice.',
+                        style: const TextStyle(
+                            color: Colors.grey, fontSize: 13, height: 1.5),
+                      ),
+                    ),
+                  ]),
+
+                  const SizedBox(height: 24),
+
+                  // ── Logout ──
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () =>
+                          ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Logout coming soon')),
+                      ),
+                      icon: const Icon(Icons.logout_rounded,
+                          color: Color(0xFFFF6B6B)),
+                      label: const Text('Logout',
+                          style: TextStyle(
+                              color: Color(0xFFFF6B6B),
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFFFF6B6B)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _iconBox(IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: primary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Icon(icon, color: primary, size: 20),
+    );
+  }
+
+  Widget _sectionTitle(String title, Color color) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(title,
+          style: TextStyle(
+              fontSize: 15, fontWeight: FontWeight.bold, color: color)),
+    );
+  }
+
+  Widget _card(Color color, List<Widget> children) {
+    return Container(
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(children: children),
+    );
+  }
+
+  void _showEditProfile(BuildContext context, UserProvider user) {
+    final nameCtrl = TextEditingController(text: user.userName);
+    final emailCtrl = TextEditingController(text: user.userEmail);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Edit Profile',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              TextField(
+                controller: nameCtrl,
+                decoration: InputDecoration(
+                  labelText: 'Full Name',
+                  prefixIcon: const Icon(Icons.person, color: primary),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: primary, width: 2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              TextField(
+                controller: emailCtrl,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon: const Icon(Icons.email, color: primary),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: primary, width: 2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Cancel')),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        user.updateUser(
+                            name: nameCtrl.text, email: emailCtrl.text);
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Profile updated!'),
+                            backgroundColor: primary,
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(backgroundColor: primary),
+                      child: const Text('Save',
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
