@@ -17,7 +17,7 @@
 
 ## 📖 Overview
 
-**Medicare** is a cross-platform mobile application built with Flutter that empowers users to manage their medications effectively. It combines smart alarm scheduling, health tracking, symptom checking, and emergency management into one clean and intuitive experience.
+**Medicare** is aN ANDROID  mobile application built with Flutter that empowers users to manage their medications effectively. It combines smart alarm scheduling, health tracking, symptom checking, and emergency management into one clean and intuitive experience.
 
 Developed as part of the **Mobile Application Development** course at **Dire Dawa University**.
 
